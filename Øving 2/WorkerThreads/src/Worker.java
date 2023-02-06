@@ -1,13 +1,18 @@
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 public class Worker extends Thread{
     private final List<Runnable> tasks;
     private final List<Thread> threads;
     private final int nrOfThreads;
-    private boolean running = true;
+    private boolean running = false;
+    private Lock lock = new ReentrantLock();
+    private Condition condition = lock.newCondition();
 
     public Worker(int threads){
         if (threads != 1) {
@@ -27,37 +32,42 @@ public class Worker extends Thread{
                 while(running){
                     Runnable task = null;
                     {
-                        synchronized (tasks){
-                            if(!tasks.isEmpty()){
-                                task = tasks.get(0); // Copy task for later use
-                                tasks.remove(task); // Remove task from list
+                        lock.lock();
+                        long startTime = System.currentTimeMillis();
+                        while (tasks.isEmpty()) {
+                            try {
+                                condition.await(1, TimeUnit.SECONDS);
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
                             }
+                            if(System.currentTimeMillis()-startTime > 5_000) break;
                         }
+                        if(!tasks.isEmpty()){
+                            task = tasks.get(0); // Copy task for later use
+                            tasks.remove(task); // Remove task from list
+                        }
+                        lock.unlock();
                     }
                     if (task!=null){
                         post_timeout(task, 1000); // Run task outside of mutex lock
                     }
-
-                    else{
-                        if(tasks.isEmpty()){
-                            stopRunning();
-                        }
-                        try {
-                            Thread.sleep(10);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
+                    else if(tasks.isEmpty() && running){
+                        stopRunning();
                     }
                 }
             }));
         }
+        running = true;
+        for(Thread t : threads){
+            t.start();
+        }
     }
 
     void stopRunning(){
-        synchronized (this){
-            running = false;
-            notifyAll();
-        }
+        lock.lock();
+        running=false;
+        condition.signalAll();
+        lock.unlock();
     }
 
     void post_timeout(Runnable task, long timeout) {
@@ -72,36 +82,45 @@ public class Worker extends Thread{
     }
 
     void post_tasks() {
+        lock.lock();
         for (int i = 0; i < 10; i++) {
             int finalI = i;
-            synchronized (tasks){
-                post(() -> System.out.println("Task " + finalI +
-                        " runs in thread " +
-                        currentThread().getId()));
-            }
+            post(() -> System.out.println("Task " + finalI +
+                    " runs in thread " +
+                    currentThread().getId()));
+
         }
+        running = true;
+        condition.signal();
+        lock.unlock();
     }
 
     void post(Runnable task){
-        synchronized (tasks){
-            tasks.add(task);
-        }
+        lock.lock();
+        tasks.add(task);
+        running = true;
+        condition.signal();
+        lock.unlock();
     }
 
-    void runTasksInWorkerThreads(){
-        for (Thread thread : threads) {
-            thread.start();
-        }
-    }
 
 
     public static void main(String[] args) {
-
         Worker workerThreads = new Worker(4);
         workerThreads.start();
         workerThreads.post_tasks();
-        workerThreads.runTasksInWorkerThreads();
+        try {
+            Thread.sleep(3000);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        workerThreads.post_tasks();
+        workerThreads.post_tasks();
 
+        //Worker eventLoop = new Worker(1);
+        //eventLoop.start();
+        //eventLoop.post_tasks();
+        //eventLoop.runTasksInWorkerThreads();
 
 
     }
