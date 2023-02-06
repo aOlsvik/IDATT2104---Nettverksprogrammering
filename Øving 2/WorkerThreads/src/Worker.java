@@ -28,7 +28,7 @@ public class Worker extends Thread{
     @Override
     public void run() {
         for (int i = 0; i < nrOfThreads; i++) {
-            threads.add(new WorkerThread(()->{
+            threads.add(new Thread(()->{
                 while(running){
                     Runnable task = null;
                     {
@@ -61,12 +61,21 @@ public class Worker extends Thread{
         for(Thread t : threads){
             t.start();
         }
+        for (Thread t : threads){
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     void stopRunning(){
         lock.lock();
         running=false;
         condition.signalAll();
+        if(this.nrOfThreads > 1) System.out.println("Shutting down worker threads");
+        else System.out.println("Shutting down event loop");
         lock.unlock();
     }
 
@@ -109,19 +118,22 @@ public class Worker extends Thread{
         Worker workerThreads = new Worker(4);
         workerThreads.start();
         workerThreads.post_tasks();
+
         try {
-            Thread.sleep(3000);
+            workerThreads.join();
         } catch (Exception e){
             e.printStackTrace();
         }
-        workerThreads.post_tasks();
-        workerThreads.post_tasks();
 
-        //Worker eventLoop = new Worker(1);
-        //eventLoop.start();
-        //eventLoop.post_tasks();
-        //eventLoop.runTasksInWorkerThreads();
+        Worker eventLoop = new Worker(1);
+        eventLoop.start();
+        eventLoop.post_tasks();
 
+        try {
+            eventLoop.join();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
 
     }
 }
