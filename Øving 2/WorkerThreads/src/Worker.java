@@ -43,16 +43,19 @@ public class Worker extends Thread{
                             if(System.currentTimeMillis()-startTime > 5_000) break;
                         }
                         if(!tasks.isEmpty()){
-                            task = tasks.get(0); // Copy task for later use
-                            tasks.remove(task); // Remove task from list
+                            task = tasks.get(0);
+                            tasks.remove(task);
                         }
                         lock.unlock();
                     }
                     if (task!=null){
-                        post_timeout(task, 1000); // Run task outside of mutex lock
+                        set_Timeout(task,1000);
+                        //post_timeout(task, 1000);
                     }
-                    else if(tasks.isEmpty() && running){
-                        stopRunning();
+                    else if(tasks.isEmpty()){
+                        lock.lock();
+                        if(running) stopRunning();
+                        lock.unlock();
                     }
                 }
             }));
@@ -71,12 +74,21 @@ public class Worker extends Thread{
     }
 
     void stopRunning(){
-        lock.lock();
+
         running=false;
         condition.signalAll();
         if(this.nrOfThreads > 1) System.out.println("Shutting down worker threads");
         else System.out.println("Shutting down event loop");
-        lock.unlock();
+
+    }
+
+    void set_Timeout(Runnable task, long timeout){
+        try {
+            Thread.sleep(timeout);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        task.run();
     }
 
     void post_timeout(Runnable task, long timeout) {
@@ -117,7 +129,26 @@ public class Worker extends Thread{
     public static void main(String[] args) {
         Worker workerThreads = new Worker(4);
         workerThreads.start();
-        workerThreads.post_tasks();
+        Worker eventLoop = new Worker(1);
+        eventLoop.start();
+
+        //workerThreads.post_tasks();
+        //eventLoop.post_tasks();
+
+        workerThreads.post(()-> {
+            System.out.println("Task A worker");
+        });
+        workerThreads.post(()-> {
+            System.out.println("Task B worker");
+        });
+        
+        
+        eventLoop.post(()-> {
+            System.out.println("Task A event");
+        });
+        eventLoop.post(()-> {
+            System.out.println("Task B event");
+        });
 
         try {
             workerThreads.join();
@@ -125,9 +156,7 @@ public class Worker extends Thread{
             e.printStackTrace();
         }
 
-        Worker eventLoop = new Worker(1);
-        eventLoop.start();
-        eventLoop.post_tasks();
+
 
         try {
             eventLoop.join();
