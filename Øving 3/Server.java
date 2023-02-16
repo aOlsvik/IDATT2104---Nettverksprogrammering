@@ -9,7 +9,7 @@ class Server {
 
         while(true){
             Socket connection = server.accept();
-            ClientThread clientThread = new ClientThread(connection);
+            ClientHandler clientThread = new ClientHandler(connection);
             clientThread.start();
             System.out.println("Accepted a client");
         }

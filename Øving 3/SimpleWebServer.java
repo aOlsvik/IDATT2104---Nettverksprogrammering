@@ -3,7 +3,7 @@ import java.net.*;
 
 public class SimpleWebServer {
     public static void main(String[] args) throws IOException {
-        final int PORT_NUMBER = 5080;
+        final int PORT_NUMBER = 8080;
         ServerSocket server = new ServerSocket(PORT_NUMBER);
         System.out.println("Server started on port " + PORT_NUMBER);
 
