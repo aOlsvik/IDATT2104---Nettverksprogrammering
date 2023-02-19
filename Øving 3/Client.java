@@ -1,18 +1,10 @@
-/*
- * SocketKlient.java  - "Programmering i Java", 4.utgave - 2009-07-01
- *
- * Programmet kontakter et tjenerprogram som allerede kjører på port 1250.
- * Linjer med tekst sendes til tjenerprogrammet. Det er laget slik at
- * det sender disse tekstene tilbake.
- */
-
 import java.io.*;
 import java.net.*;
 import java.util.Scanner;
 
 class Client {
     public static void main(String[] args) throws IOException {
-        final int PORTNUMBER = 1250;
+        final int PORT_NUMBER = 1250;
 
         /* Scanner to read from commandline */
         Scanner readFromCommandLine = new Scanner(System.in);
@@ -20,7 +12,7 @@ class Client {
         String serverMachine = readFromCommandLine.nextLine();
 
         /* Sets up the connection to the server */
-        Socket connection = new Socket(serverMachine, PORTNUMBER);
+        Socket connection = new Socket(serverMachine, PORT_NUMBER);
         System.out.println("Connection was made");
 
         /* Opens a connection for communication with the server */
