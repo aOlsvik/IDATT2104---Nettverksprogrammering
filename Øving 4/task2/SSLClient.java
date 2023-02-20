@@ -18,8 +18,6 @@ public class SSLClient {
     static final int port = 8000;
 
     public static void main(String[] args) {
-        System.setProperty("javax.net.ssl.trustStore", "examplestore");
-        System.setProperty("javax.net.ssl.trustStorePassword", "password");
         SSLSocketFactory sslSocketFactory =
                 (SSLSocketFactory)SSLSocketFactory.getDefault();
         try {

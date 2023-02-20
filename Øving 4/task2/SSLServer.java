@@ -17,9 +17,6 @@ public class SSLServer {
     static final int port = 8000;
 
     public static void main(String[] args) {
-        System.setProperty("javax.net.ssl.keyStore", "examplestore");
-        System.setProperty("javax.net.ssl.keyStorePassword", "password");
-
         SSLServerSocketFactory sslServerSocketFactory =
                 (SSLServerSocketFactory)SSLServerSocketFactory.getDefault();
 
