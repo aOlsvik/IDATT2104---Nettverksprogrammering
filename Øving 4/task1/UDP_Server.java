@@ -37,9 +37,8 @@ public class UDP_Server extends Thread{
                 running = false;
                 newMessage = "ended program";
             }else{
-                newMessage = received +" from server";
+                newMessage = calculate(received);
             }
-
             byte[] array =newMessage.getBytes();
             packet.setData(array);
             try {
@@ -49,5 +48,41 @@ public class UDP_Server extends Thread{
             }
         }
         socket.close();
+    }
+    private String calculate(String calculation){
+        String[] elements = new String[3];
+        StringBuilder s=new StringBuilder();
+        for(char c : calculation.trim().toCharArray()){
+            if(Character.isDigit(c)){
+                s.append(c);
+            } else if (c == '/' || c == '*' || c == '+' || c == '-'){
+                elements[0] = s.toString();
+                s = new StringBuilder();
+                elements[1] = String.valueOf(c);
+            }
+            else{
+                return "Invalid calculation. " +
+                        "Please enter a calculation on the form:" +
+                        "1+1";
+            }
+        }
+        elements[2] = s.toString();
+        int answer = 0;
+        String operator="";
+        if(elements[1].equals("+")){
+            operator="+";
+            answer = Integer.parseInt(elements[0]) + Integer.parseInt(elements[2]);
+        }else if(elements[1].equals("-")){
+            operator="-";
+            answer = Integer.parseInt(elements[0]) - Integer.parseInt(elements[2]);
+        }else if(elements[1].equals("*")){
+            operator="*";
+            answer = Integer.parseInt(elements[0]) * Integer.parseInt(elements[2]);
+        }else if(elements[1].equals("/")){
+            operator="/";
+            if(elements[2].equals("0")) return "Cannot divide by zero";
+            answer = Integer.parseInt(elements[0]) / Integer.parseInt(elements[2]);
+        }
+        return elements[0] + operator + elements[2] + "=" + answer;
     }
 }
