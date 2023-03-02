@@ -18,10 +18,18 @@ import axios from 'axios'
       }
     }, 
     methods: {
-      submit() {
+      async submit() {
         console.log(this.userCodeInput)
-        axios.post("http://localhost:8000", this.userCodeInput).then(response => {
-
+        const data = {
+          code: this.userCodeInput
+        }
+        await axios.post("http://localhost:8000/compile-and-run", data)
+        .then(response => {
+          console.log(response.data)
+          this.$emit("update-message", response.data.code)
+        })
+        .catch(error => {
+          console.error(error)
         })
       }
     }

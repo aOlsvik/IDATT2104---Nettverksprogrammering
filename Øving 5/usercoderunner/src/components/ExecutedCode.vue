@@ -9,11 +9,11 @@
 
 <script>
     export default {
-        data() {
-            return{
-                message: "Output from code will appear here"
+        props:{
+            message: {
+                type:String
             }
-        },
+        }
 
 }
 </script>

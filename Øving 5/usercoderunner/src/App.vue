@@ -1,9 +1,9 @@
 <template>
   <body>
     <h1>Online Code Compiler and Runner</h1>
-    <UserCodeInput/>
+    <UserCodeInput :message="message" @update-message="message = $event"/>
     <hr>
-    <ExecutedCode/>
+    <ExecutedCode :message="message"/>
   </body>
 </template>
 
@@ -19,7 +19,7 @@ export default {
   },
   data() {
     return {
-      
+      message: "Code will appear here"
     }
   }
 }
