@@ -26,7 +26,7 @@ import axios from 'axios'
         await axios.post("http://localhost:8000/compile-and-run", data)
         .then(response => {
           console.log(response.data)
-          this.$emit("update-message", response.data.code)
+          this.$emit("update-message", response.data.output)
         })
         .catch(error => {
           console.error(error)

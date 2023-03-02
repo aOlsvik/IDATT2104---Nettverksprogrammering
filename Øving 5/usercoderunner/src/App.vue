@@ -1,7 +1,7 @@
 <template>
   <body>
     <h1>Online Code Compiler and Runner</h1>
-    <UserCodeInput :message="message" @update-message="message = $event"/>
+    <UserCodeInput @update-message="message = $event" />
     <hr>
     <ExecutedCode :message="message"/>
   </body>
