@@ -19,7 +19,7 @@ export default {
   },
   data() {
     return {
-      message: "Code will appear here"
+      message: "Output will appear here"
     }
   }
 }

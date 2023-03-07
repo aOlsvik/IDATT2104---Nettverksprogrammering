@@ -55,6 +55,9 @@ form textarea{
   width: 100%;
   min-height: 100px;
   resize: vertical;
+  font-size: 20px;
+  outline:none;
+  padding:5px;
 }
 
 form button {

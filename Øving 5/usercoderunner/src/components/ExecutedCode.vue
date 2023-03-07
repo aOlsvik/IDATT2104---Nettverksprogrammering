@@ -13,6 +13,11 @@
             message: {
                 type:String
             }
+        },
+        computed: {
+            displayMessage() {
+                
+            } 
         }
 
 }
@@ -28,6 +33,11 @@
 .compiled-code {
     width: 75%;
     background-color: white;
+}
+p{
+    white-space: pre-wrap;
+    margin-left:5px;
+    font-size: 20px;
 }
 </style>
   
