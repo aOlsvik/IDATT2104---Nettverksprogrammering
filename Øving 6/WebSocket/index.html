@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+</head>
+<body>
+    <div class="messageSender">
+        <h1>WebSocket test page</h1>
+        <div class = "messageSender">
+        <label for="message"> Message: </label>
+        <input id="message" placeholder="Type your message here">
+        <button onclick ="sendData()">Send</button>
+    </div>
+    <div class="messages">
+        <ul id="messages">
+
+        </ul>
+    </div>
+</body>
+</html>
+
+<script>
+	const input = document.getElementById("message")
+    const messages = document.getElementById("messages")
+	const ws = new WebSocket('ws://localhost:3001');
+
+	ws.onmessage = event => {
+        let li = document.createElement('li')
+        li.appendChild(document.createTextNode(JSON.parse(event.data).text))
+        messages.appendChild(li)
+    }
+    
+    ws.onerror = (error) => console.error(error)
+	ws.onopen = () => {
+        
+        ws.send(JSON.stringify({
+        text:'hello'
+    }))
+    }
+
+    function sendData(){
+        console.log("send")
+        ws.send(JSON.stringify({
+            text:input.value
+        }))
+        input.value=''
+    }
+
+</script>
+
+<style>
+	body{
+		display:flex;
+		flex-direction: column;
+		align-items:center;
+	}
+	.messageSender{
+        background-color: azure;
+    }
+    .messages ul{
+        list-style: none;
+        display: flex;
+        flex-direction: column-reverse;
+    }
+	
+</style>
