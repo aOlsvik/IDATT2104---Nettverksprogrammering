@@ -11,10 +11,14 @@
         <input id="message" placeholder="Type your message here">
         <button onclick ="sendData()">Send</button>
     </div>
+    <div class="conn">
+        <p>Connected</p>
+    </div>
     <div class="messages">
-        <ul id="messages">
-
-        </ul>
+        <h2>Messages:</h2>
+        <div class="grid-container">
+            
+        </div>
     </div>
 </body>
 </html>
@@ -25,12 +29,17 @@
 	const ws = new WebSocket('ws://localhost:3001');
 
 	ws.onmessage = event => {
-        let li = document.createElement('li')
-        li.appendChild(document.createTextNode(JSON.parse(event.data).text))
-        messages.appendChild(li)
+        let gridcontainer = document.getElementsByClassName("grid-container")[0]
+        let griditem = document.createElement('div')
+        griditem.className = "grid-item"
+        let message = document.createElement('p')
+        message.appendChild(document.createTextNode(event.data))
+        griditem.appendChild(message)
+        gridcontainer.appendChild(griditem)
     }
     
-    ws.onerror = (error) => console.error(error)
+    ws.onerror = error => console.error(error)
+
 	ws.onopen = () => {
         
         ws.send(JSON.stringify({
@@ -39,7 +48,6 @@
     }
 
     function sendData(){
-        console.log("send")
         ws.send(JSON.stringify({
             text:input.value
         }))
@@ -49,6 +57,10 @@
 </script>
 
 <style>
+    *{
+    padding:5px;
+
+    }
 	body{
 		display:flex;
 		flex-direction: column;
@@ -57,10 +69,28 @@
 	.messageSender{
         background-color: azure;
     }
+    .messages{
+        background-color: cadetblue;
+    }
     .messages ul{
         list-style: none;
         display: flex;
         flex-direction: column-reverse;
     }
-	
+    .grid-container{
+        display: grid;
+        row-gap: 10px;
+
+    }
+    .grid-item{
+        background-color: aliceblue;
+        border-radius: 20px 10px 10px 00px;
+        height: 40px;
+        width: 75%;
+        justify-self: flex-start;
+    }
+	.grid-item:nth-child(odd){
+        justify-self: flex-end;
+        border-radius: 10px 20px 0px 10px;
+    }
 </style>
