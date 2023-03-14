@@ -52,16 +52,15 @@ const wsServer = net.createServer((connection) => {
           connections[index].write(messageToClient)
         }
     } catch (error){
-        //When JSON can't parse the message, it means the client has disconnected.
-        
-    }
-      }
-		})
+        console.error(error)
+    }}
+	})
   
     connection.on('end', () => {
       console.log('Client disconnected');
     });
-  });
+
+});
 
   
   wsServer.listen(3001, "localhost", () => {
